@@ -1,0 +1,15 @@
+meta {
+  name: HasEnvVars
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://{{host}}/test/environmentVariables
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

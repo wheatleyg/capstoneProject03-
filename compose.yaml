@@ -1,0 +1,7 @@
+﻿services:
+  capstonebackend.core:
+    image: capstonebackend.core
+    build:
+      context: .
+      dockerfile: CapstoneBackend.Core/Dockerfile
+

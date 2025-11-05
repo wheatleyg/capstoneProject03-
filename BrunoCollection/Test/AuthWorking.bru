@@ -1,0 +1,20 @@
+meta {
+  name: AuthWorking
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://{{host}}/test/authentication
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{auth_token}}
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
