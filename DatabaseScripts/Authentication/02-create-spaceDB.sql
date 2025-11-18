@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS `space_db` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when it was created.'
     PRIMARY KEY (`id`),
     FOREIGN KEY (`genre_id`) REFERENCES main(`id`),
-    FOREIGN KEY (`source_id`) REFERENCES placeholder
+    FOREIGN KEY (`source_id`) REFERENCES media(`id`)
 )

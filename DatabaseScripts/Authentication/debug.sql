@@ -1,0 +1,7 @@
+SHOW TABLES;
+
+
+DROP TABLE IF EXISTS `main`;
+DROP TABLE IF EXISTS `media`;
+DROP TABLE IF EXISTS `space_db`;
+DROP TABLE IF EXISTS `fact_tags`;
