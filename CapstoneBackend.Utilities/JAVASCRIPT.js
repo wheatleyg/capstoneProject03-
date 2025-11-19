@@ -1,1 +1,0 @@
-let six : number = 6
