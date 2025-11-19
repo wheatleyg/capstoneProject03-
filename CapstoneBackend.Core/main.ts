@@ -1,5 +1,5 @@
 ﻿// TODO decide on TS or C#...
-// Mr. Lemke please spare me but I'd probably do better with Node.JS than C# since I already have a ton of experience with JS. 
+// Mr. Lemke please spare me but I'd probably do better with Node.JS than C# since I already have a ton of experience with JS/TS. 
 
 //TS test to see if it works on my system :P
 
