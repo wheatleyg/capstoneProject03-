@@ -1,4 +1,10 @@
+CREATE DATABASE IF NOT EXISTS `fun_facts_db`;
+
+
 USE `fun_facts_db`;
+
+ 
+    
 
 CREATE TABLE IF NOT EXISTS `main` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'ID',
