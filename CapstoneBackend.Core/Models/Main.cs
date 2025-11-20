@@ -1,6 +1,6 @@
-﻿using Dapper.Contrib.Extensions;
+﻿namespace CapstoneBackend.Core.Models;
 
-namespace CapstoneBackend.Core.Models;
+using Dapper.Contrib.Extensions;
 
 [Table("main")]
 public class Main
