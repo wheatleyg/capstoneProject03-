@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `space_db` (
     `fact_text` TEXT NOT NULL COMMENT 'the supposed text of the fact', 
     `source_id` INT UNSIGNED NOT NULL COMMENT 'source of the supposed fact',
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when it was created.',
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when it was last updated.',
     PRIMARY KEY (`id`),
     FOREIGN KEY (`genre_id`) REFERENCES main(`id`),
     FOREIGN KEY (`source_id`) REFERENCES media(`id`)

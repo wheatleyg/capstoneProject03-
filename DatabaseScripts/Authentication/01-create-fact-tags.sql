@@ -1,9 +1,12 @@
 
 USE `fun_facts_db`;
 
+-- Renamed columns to be clearer
 CREATE TABLE IF NOT EXISTS `fact_tags`(
-    `fact_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique identifier for the fact',
-    `fact_tags` JSON  NOT NULL COMMENT 'Tag associated with fact',
-    PRIMARY KEY (`fact_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'PK',
+    `genre_id` INT UNSIGNED NOT NULL COMMENT 'Links to the main genre table',
+    `available_tags` JSON NOT NULL COMMENT 'A JSON array of allowed tags for this genre',
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`genre_id`) REFERENCES `main`(`id`) ON DELETE CASCADE
+)
  

@@ -1,4 +1,5 @@
 using CapstoneBackend.Auth;
+using CapstoneBackend.Core.Repositories;
 using CapstoneBackend.Utilities;
 
 namespace CapstoneBackend.Core;
@@ -26,6 +27,9 @@ public class Startup
         
         services.AddScoped<DbConnectionTest>();
         AuthSetup.AddAuth(services, _configuration);
+
+
+        services.AddScoped<CatDbRepository>();
     }
 
     //This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
