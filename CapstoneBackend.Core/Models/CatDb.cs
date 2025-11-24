@@ -1,3 +1,4 @@
+//ReSharper disable ConvertToAutoPropertyWithPrivateSetter
 namespace CapstoneBackend.Core.Models;
 
 using Dapper.Contrib.Extensions;
@@ -6,9 +7,10 @@ using Dapper.Contrib.Extensions;
 public class CatDb
 {
     [Key]
-    public int Id { get; set; }
-    public int GenreId { get; set; }
-    public required string FactText { get; set; }
-    public int SourceId { get; set; }
-    public DateTime CreatedAt { get; set; } //I wish there was a way to easily test if this linked properly.
+    public int Id { get; private set; }
+    public int GenreId { get; init; }
+    public required string FactText { get; init; }
+    public int SourceId { get; init; }
+    public DateTime CreatedAt { get; init; }
 }
+//ReSharper restore ConvertToAutoPropertyWithPrivateSetter

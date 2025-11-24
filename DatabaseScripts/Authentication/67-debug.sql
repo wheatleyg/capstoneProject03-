@@ -1,3 +1,4 @@
+USE `fun_facts_db`;
 SHOW TABLES;
 
 
@@ -11,3 +12,4 @@ DROP TABLE IF EXISTS `cat_db`;
 
 
 SET FOREIGN_KEY_CHECKS = true;
+SHOW TABLES;

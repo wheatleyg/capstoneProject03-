@@ -7,6 +7,8 @@ using CapstoneBackend.Core.Repositories;
 using CapstoneBackend.Core.Models;
 using Microsoft.Extensions.Configuration;
 using System.IO;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace CapstoneBackend.Test.Auth;
 
@@ -158,50 +160,60 @@ public class AuthServiceTests
         //assert
         Assert.IsType<AuthToken>(test);
     }
-    public class CatDbRepositoryTests
+}
+
+// Moved outside of AuthServiceTests class
+public class CatDbRepositoryTests
+{
+    private readonly ICatDbRepository _repo;
+    private readonly ITestOutputHelper _output;
+
+    public CatDbRepositoryTests()
     {
-        private readonly ICatDbRepository _repo;
+        _output = _output;
+        // WARNING: Replace YOUR_PASSWORD with your actual MySQL password
+        var myConnectionString = "Server=localhost;Database=fun_facts_db;Uid=root;Pwd=PoofBall#1;"; 
+    
+        var inMemorySettings = new Dictionary<string, string> {
+            {"ConnectionStrings:DefaultConnection", myConnectionString}
+        };
 
-        public CatDbRepositoryTests()
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(inMemorySettings!)
+            .Build();
+
+        // Create the Repository manually
+        _repo = new CatDbRepository(configuration);
+    }
+
+    [Fact]
+    public async Task GetById_ShouldReturnCatFact()
+    {
+        // Act
+        // Assuming ID 1 exists because of your filler data script
+        var result = await _repo.GetById(1); 
+        if (result != null)
         {
-            // 1. Build a configuration that reads your actual appsettings.json (or use hardcoded for quick test)
-            // WARNING: For a quick "does it work" test, you can temporarily hardcode the string to avoid file path headaches.
-            // Or, point it to your Core project's appsettings.
-        
-            var myConnectionString = "Server=localhost;Database=fun_facts_db;Uid=root;Pwd=YOUR_PASSWORD;"; 
-        
-            var inMemorySettings = new Dictionary<string, string> {
-                {"ConnectionStrings:DefaultConnection", myConnectionString}
-            };
-
-            IConfiguration configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(inMemorySettings)
-                .Build();
-
-            // 2. Create the Repository manually
-            _repo = new CatDbRepository(configuration);
+            _output.WriteLine($"Found fact: {result.FactText}");
+            _output.WriteLine($"Created at: {result.CreatedAt}");
+        }
+        else
+        {
+            _output.WriteLine("Result was null.");
         }
 
-        [Fact]
-        public async Task GetById_ShouldReturnCatFact()
-        {
-            // Act
-            // Assuming ID 1 exists because of your filler data script
-            var result = await _repo.GetByIdAsync(1); 
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.FactText.Contains("Cats sleep"), "The fact text did not contain the expected phrase.");
+    }
 
-            // Assert
-            Assert.NotNull(result);
-            Assert.Contains("Cats sleep", result.FactText); // Check for part of the text you inserted
-        }
+    [Fact]
+    public async Task GetAll_ShouldReturnFacts()
+    {
+        // Act
+        var result = await _repo.GetAllAsync();
 
-        [Fact]
-        public async Task GetAll_ShouldReturnFacts()
-        {
-            // Act
-            var result = await _repo.GetAllAsync();
-
-            // Assert
-            Assert.NotEmpty(result);
-        }
+        // Assert
+        Assert.NotEmpty(result);
     }
 }
