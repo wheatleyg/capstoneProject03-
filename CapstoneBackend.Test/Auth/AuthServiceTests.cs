@@ -168,9 +168,10 @@ public class CatDbRepositoryTests
     private readonly ICatDbRepository _repo;
     private readonly ITestOutputHelper _output;
 
-    public CatDbRepositoryTests()
+
+    public CatDbRepositoryTests(ITestOutputHelper output)
     {
-        _output = _output;
+        _output = output ?? throw new ArgumentNullException(nameof(output));
         // WARNING: Replace YOUR_PASSWORD with your actual MySQL password
         var myConnectionString = "Server=localhost;Database=fun_facts_db;Uid=root;Pwd=PoofBall#1;"; 
     

@@ -13,3 +13,4 @@ DROP TABLE IF EXISTS `cat_db`;
 
 SET FOREIGN_KEY_CHECKS = true;
 SHOW TABLES;
+/* debug for working on multiple different systems. it lets me delete the old tables and replace them with the new ones. :P */
