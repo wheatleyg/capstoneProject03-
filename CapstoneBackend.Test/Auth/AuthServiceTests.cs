@@ -172,7 +172,6 @@ public class CatDbRepositoryTests
     public CatDbRepositoryTests(ITestOutputHelper output)
     {
         _output = output ?? throw new ArgumentNullException(nameof(output));
-        // WARNING: Replace YOUR_PASSWORD with your actual MySQL password
         var myConnectionString = "Server=localhost;Database=fun_facts_db;Uid=root;Pwd=PoofBall#1;"; 
     
         var inMemorySettings = new Dictionary<string, string> {
@@ -191,7 +190,6 @@ public class CatDbRepositoryTests
     public async Task GetById_ShouldReturnCatFact()
     {
         // Act
-        // Assuming ID 1 exists because of your filler data script
         var result = await _repo.GetById(1); 
         if (result != null)
         {
