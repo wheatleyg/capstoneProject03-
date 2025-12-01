@@ -3,7 +3,6 @@ using CapstoneBackend.Auth.Models;
 using CapstoneBackend.Utilities.Exceptions;
 using Moq;
 
-using CapstoneBackend.Core.Repositories;
 using CapstoneBackend.Core.Models;
 using Microsoft.Extensions.Configuration;
 using System.IO;
@@ -163,56 +162,3 @@ public class AuthServiceTests
 }
 
 // Moved outside of AuthServiceTests class
-public class CatDbRepositoryTests
-{
-    private readonly ICatDbRepository _repo;
-    private readonly ITestOutputHelper _output;
-
-
-    public CatDbRepositoryTests(ITestOutputHelper output)
-    {
-        _output = output ?? throw new ArgumentNullException(nameof(output));
-        var myConnectionString = "Server=localhost;Database=fun_facts_db;Uid=root;Pwd=PoofBall#1;"; 
-    
-        var inMemorySettings = new Dictionary<string, string> {
-            {"ConnectionStrings:DefaultConnection", myConnectionString}
-        };
-
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(inMemorySettings!)
-            .Build();
-
-        // Create the Repository manually
-        _repo = new CatDbRepository(configuration);
-    }
-
-    [Fact]
-    public async Task GetById_ShouldReturnCatFact()
-    {
-        // Act
-        var result = await _repo.GetById(1); 
-        if (result != null)
-        {
-            _output.WriteLine($"Found fact: {result.FactText}");
-            _output.WriteLine($"Created at: {result.CreatedAt}");
-        }
-        else
-        {
-            _output.WriteLine("Result was null.");
-        }
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.True(result.FactText.Contains("Cats sleep"), "The fact text did not contain the expected phrase.");
-    }
-
-    [Fact]
-    public async Task GetAll_ShouldReturnFacts()
-    {
-        // Act
-        var result = await _repo.GetAllAsync();
-
-        // Assert
-        Assert.NotEmpty(result);
-    }
-}

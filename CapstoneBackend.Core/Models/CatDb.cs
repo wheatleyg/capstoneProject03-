@@ -7,7 +7,7 @@ using Dapper.Contrib.Extensions;
 public class CatDb
 {
     [Key]
-    public int Id { get; private set; }
+    public int Id { get; set; }
     public int GenreId { get; init; }
     public required string FactText { get; init; }
     public int SourceId { get; init; }
