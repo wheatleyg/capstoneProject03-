@@ -31,10 +31,16 @@ public class CatDbRepository(IConfiguration configuration)
     {
         using var connection = new MySqlConnection(_connectionString);
         return connection.Get<CatDb>(id) ?? throw new Exception("No entry found."); //Same as above.
-
-
-
+        
     }
+    /* Get all (for debug) */
+    public IEnumerable<CatDb> GetAll()
+    {
+        using var connection = new MySqlConnection(_connectionString);
+        return connection.GetAll<CatDb>();
+    }
+    
+    
     //Delete
     public bool DeleteEntryById(int id)
     {
