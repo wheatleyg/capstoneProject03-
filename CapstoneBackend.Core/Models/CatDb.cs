@@ -11,6 +11,6 @@ public class CatDb
     public int GenreId { get; init; }
     public required string FactText { get; init; }
     public int SourceId { get; init; }
-    public DateTime CreatedAt { get; init; }
+    public DateTime CreatedAt { get; set; }
 }
 //ReSharper restore ConvertToAutoPropertyWithPrivateSetter
