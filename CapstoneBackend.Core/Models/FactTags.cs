@@ -8,8 +8,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class FactTags
 {
     [Key]
-    public int FactId { get; set; }
+    public int Id { get; set; }
+    public int GenreId { get; set; }
 
-    [Column("fact_tags")] public required string Tags { get; set; } = "[]"; //another foresight by myself.
+    public List<string> AvailableTags { get; set; }
 
 }
