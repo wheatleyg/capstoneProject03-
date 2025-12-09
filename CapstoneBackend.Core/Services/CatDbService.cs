@@ -35,6 +35,12 @@ public class CatDbService
         return result;
     }
 
+    public IEnumerable<CatDb> GetAll()
+    {
+        var result = _catDbRepository.GetAll();
+        return result;
+    }
+
     public bool DeleteEntryById(int id)
     {
         var entry = _catDbRepository.GetEntryById(id) ?? throw new Exception("No entry found.");

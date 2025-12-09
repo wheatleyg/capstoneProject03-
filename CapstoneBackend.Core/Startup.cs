@@ -23,10 +23,18 @@ public class Startup
         */
         
         services.AddControllers();
+        //I'm so confused.
+
+        services.AddScoped<CapstoneBackend.Core.Repositories.CatDbRepository>();
+        services.AddScoped<CapstoneBackend.Core.Services.CatDbService>();
         
         services.AddScoped<DbConnectionTest>();
+        
         AuthSetup.AddAuth(services, _configuration);
 
+        
+        
+        
         
     }
 

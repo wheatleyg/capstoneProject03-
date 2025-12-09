@@ -1,16 +1,15 @@
 meta {
-  name: HasEnvVars
+  name: GetCatByID
   type: http
-  seq: 3
+  seq: 5
 }
 
 get {
-  url: http://{{host}}/test/environmentVariables
+  url: http://{{host}}/test/getcatbyid/1
   body: none
   auth: inherit
 }
 
 settings {
   encodeUrl: true
-  timeout: 0
 }

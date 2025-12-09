@@ -1,3 +1,5 @@
+using CapstoneBackend.Utilities;
+
 namespace CapstoneBackend.Core.Repositories;
 
 using Models;
@@ -6,7 +8,7 @@ using MySqlConnector;
 
 public class CatDbRepository(IConfiguration configuration)
 {
-    private readonly string _connectionString = configuration.GetConnectionString("DefaultConnection") ??
+    private readonly string _connectionString = configuration.GetValue<string>(EnvironmentVariables.MYSQL_CONNECTION_STRING) ??
                                                 throw new InvalidOperationException("Connection string failed.");
     
     
