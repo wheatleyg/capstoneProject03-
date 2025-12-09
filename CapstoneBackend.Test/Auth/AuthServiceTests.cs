@@ -3,6 +3,12 @@ using CapstoneBackend.Auth.Models;
 using CapstoneBackend.Utilities.Exceptions;
 using Moq;
 
+using CapstoneBackend.Core.Models;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using Xunit;
+using Xunit.Abstractions;
+
 namespace CapstoneBackend.Test.Auth;
 
 public class AuthServiceTests
@@ -154,3 +160,5 @@ public class AuthServiceTests
         Assert.IsType<AuthToken>(test);
     }
 }
+
+// Moved outside of AuthServiceTests class

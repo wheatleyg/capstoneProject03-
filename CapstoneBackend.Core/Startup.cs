@@ -23,9 +23,19 @@ public class Startup
         */
         
         services.AddControllers();
+        //I'm so confused.
+
+        services.AddScoped<CapstoneBackend.Core.Repositories.CatDbRepository>();
+        services.AddScoped<CapstoneBackend.Core.Services.CatDbService>();
         
         services.AddScoped<DbConnectionTest>();
+        
         AuthSetup.AddAuth(services, _configuration);
+
+        
+        
+        
+        
     }
 
     //This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

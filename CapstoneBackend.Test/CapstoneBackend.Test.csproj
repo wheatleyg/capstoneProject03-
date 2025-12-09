@@ -27,6 +27,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\CapstoneBackend.Auth\CapstoneBackend.Auth.csproj" />
+      <ProjectReference Include="..\CapstoneBackend.Core\CapstoneBackend.Core.csproj" />
     </ItemGroup>
 
 </Project>
