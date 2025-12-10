@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CapstoneBackend.Core.Controllers;
 
+[Route("test")]
 public class TestController : Controller
 {
     private readonly ILogger<TestController> _logger;
@@ -29,14 +30,14 @@ public class TestController : Controller
         _catDbService = catDbService;
     }
 
-    [HttpGet("test/online")]
+    [HttpGet("online")]
     public IActionResult TestOnline()
     {
         _logger.LogInformation("test endpoint called");
         return Ok("Backend online.");
     }
 
-    [HttpGet("test/environmentVariables")]
+    [HttpGet("environmentVariables")]
     public IActionResult TestEnvironmentVariables()
     {
         _logger.LogInformation("environment variable endpoint called");
@@ -48,7 +49,7 @@ public class TestController : Controller
             return StatusCode(501, "Environment variables not working.");
     }
 
-    [HttpGet("test/databaseConnection")]
+    [HttpGet("databaseConnection")]
     public async Task<IActionResult> TestConnectionString()
     {
         _logger.LogInformation("connection string endpoint called");
@@ -65,7 +66,7 @@ public class TestController : Controller
         }
     }
 
-    [HttpGet("test/authentication")]
+    [HttpGet("authentication")]
     [Authorize]
     public IActionResult TestAuth()
     {
@@ -83,12 +84,28 @@ public class TestController : Controller
         }
     }
 
-    [HttpGet("test/getcatbyid/{id:int}")]
+    [HttpGet("getcatbyid/{id:int}")]
     public IActionResult catDbById([FromRoute] int id)
     {
         Console.WriteLine("Trying. . . ");
-        var result = _catDbService.GetEntryById(id);
-        return Ok(result);
-        Console.WriteLine("Done.");
+
+
+        try
+        {
+            var result = _catDbService.GetEntryById(id);
+            return Ok(result);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex) // catch anything unexpected
+        {
+            return StatusCode(500, new { message = "An unexpected error occurred." });
+        }
     }
 }
