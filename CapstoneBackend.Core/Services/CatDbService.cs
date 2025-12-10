@@ -54,7 +54,7 @@ public class CatDbService
     public bool DeleteEntryById(int id)
     {
         if(id <= 0) throw new ArgumentOutOfRangeException(nameof(id), "Id must be greater than 0.");
-        var _ = _catDbRepository.GetEntryById(id) ?? throw new KeyNotFoundException("No entry found.");
+        var _ = _catDbRepository.GetEntryById(id) ?? throw new KeyNotFoundException($"No entry found with 'id' {id}".);
         return _catDbRepository.DeleteEntryById(id);
     }
 } 
