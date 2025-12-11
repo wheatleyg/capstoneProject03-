@@ -1,17 +1,17 @@
 meta {
-  name: GetById
+  name: DeleteById
   type: http
-  seq: 1
+  seq: 5
 }
 
-get {
+delete {
   url: http://{{host}}/catdb/{{id}}
   body: none
   auth: inherit
 }
 
 vars:pre-request {
-  id: 1
+  id: 2
 }
 
 settings {

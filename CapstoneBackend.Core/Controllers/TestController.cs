@@ -14,20 +14,18 @@ public class TestController : Controller
     private readonly IConfiguration _configuration;
     private readonly DbConnectionTest _dbConnectionTest;
     private readonly IUserContext _userContext;
-    private readonly CatDbService _catDbService;
 
     public TestController(
         ILogger<TestController> logger,
         IConfiguration configuration,
         DbConnectionTest dbConnectionTest,
-        IUserContext userContext,
-        CatDbService catDbService)
+        IUserContext userContext)
     {
         _logger = logger;
         _configuration = configuration;
         _dbConnectionTest = dbConnectionTest;
         _userContext = userContext;
-        _catDbService = catDbService;
+        
     }
 
     [HttpGet("online")]

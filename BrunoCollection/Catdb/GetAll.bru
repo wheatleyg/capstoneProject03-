@@ -5,11 +5,12 @@ meta {
 }
 
 get {
-  url: http://{{host}}/catdb/getall
+  url: http://{{host}}/catdb
   body: none
   auth: inherit
 }
 
 settings {
   encodeUrl: true
+  timeout: 0
 }
