@@ -84,28 +84,5 @@ public class TestController : Controller
         }
     }
 
-    [HttpGet("getcatbyid/{id:int}")]
-    public IActionResult catDbById([FromRoute] int id)
-    {
-        Console.WriteLine("Trying. . . ");
 
-
-        try
-        {
-            var result = _catDbService.GetEntryById(id);
-            return Ok(result);
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-        catch (Exception ex) // catch anything unexpected
-        {
-            return StatusCode(500, new { message = "An unexpected error occurred." });
-        }
-    }
 }

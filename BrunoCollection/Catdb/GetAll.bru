@@ -1,0 +1,15 @@
+meta {
+  name: GetAll
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://{{host}}/catdb/getall
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

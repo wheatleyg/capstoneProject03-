@@ -1,0 +1,29 @@
+meta {
+  name: UpdateById
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://{{host}}/catdb/{{id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "id": 1,
+    "genreId": 1,
+    "factText": "You are a idiot",
+    "sourceId": 1
+  }
+}
+
+vars:pre-request {
+  id: 1
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

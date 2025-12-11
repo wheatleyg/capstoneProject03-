@@ -29,11 +29,24 @@ public class CatDbService
 
     public CatDb UpdateEntry(CatDb catDb)
     {
+        
         if (catDb.Id <= 0) throw new ArgumentOutOfRangeException(nameof(catDb.Id), "Id must be greater than 0.");
-        var _ = _catDbRepository.GetEntryById(catDb.Id) ??
+        var existing = _catDbRepository.GetEntryById(catDb.Id) ??
                             throw new KeyNotFoundException($"No entry found with 'Id': {catDb.Id}.");
-        return _catDbRepository.UpdateEntry(catDb);
+        var merged = new CatDb
+        {
+            Id = catDb.Id,
+            GenreId = catDb.GenreId != 0 ? catDb.GenreId : existing.GenreId,
+            FactText = catDb.FactText,
+            SourceId = catDb.SourceId != 0 ? catDb.SourceId : existing.SourceId,
+            CreatedAt = existing.CreatedAt,
+            
+        };
+    
+        return _catDbRepository.UpdateEntry(merged);
     }
+        
+    
 
     public CatDb GetEntryById(int id)
     {
