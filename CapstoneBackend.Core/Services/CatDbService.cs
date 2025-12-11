@@ -39,11 +39,12 @@ public class CatDbService
             GenreId = catDb.GenreId != 0 ? catDb.GenreId : existing.GenreId,
             FactText = catDb.FactText,
             SourceId = catDb.SourceId != 0 ? catDb.SourceId : existing.SourceId,
-            CreatedAt = existing.CreatedAt,
+            CreatedAt = existing.CreatedAt
             
         };
-    
-        return _catDbRepository.UpdateEntry(merged);
+        
+        var value = _catDbRepository.UpdateEntry(merged);
+        return _catDbRepository.GetEntryById(catDb.Id); //allows returning of UpdatedAt too
     }
         
     

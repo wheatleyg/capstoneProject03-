@@ -130,10 +130,6 @@ public class CatDbController: Controller
      }
  }
 }
-//Frontend is planned to never actually talk directly to these controllers
-//Why? Because I'm fairly stupid and made all these services without any foresight on how-
-//these would actually talk to the front end. 
-//Anyways, the planned plan should work quite well (and adds a bit more extra security)
-//, although, it will use a bit more resources on the 'server' than it needs too.
-// If I did this again, I would also plan out how this API actually interacts with the front end,-
-//before ever making anything again. Also, I'd probably use Rust or Node.js probably. 
+//Frontend is planned to never actually talk directly to these controllers-
+// at least public, it'll still be used for admin use and such to make direct-
+//editing easier. Also, I got to meet rubric too :P
