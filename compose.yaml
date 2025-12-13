@@ -1,7 +1,40 @@
 ﻿services:
+  mysql:
+    image: mysql:8.0
+    container_name: capstone-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=PoofBall#1
+      - MYSQL_DATABASE=fun_facts_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./DatabaseScripts/Authentication:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pPoofBall#1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   capstonebackend.core:
     image: capstonebackend.core
     build:
       context: .
       dockerfile: CapstoneBackend.Core/Dockerfile
+    ports:
+      - "5101:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://0.0.0.0:8080
+      - EnvironmentVariables__Database__ConnectionString=server=mysql;port=3306;database=fun_facts_db;uid=root;pwd=PoofBall#1;
+    volumes:
+      - ./CapstoneBackend.Core/appsettings.Development.json:/app/appsettings.Development.json:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
 

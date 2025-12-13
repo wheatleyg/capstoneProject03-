@@ -1,0 +1,29 @@
+meta {
+  name: UpdateById
+  type: http
+  seq: 4
+}
+
+put {
+  url: http://{{host}}/catdb/{{id}}
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "id": {{id}},
+    "genreId": 1,
+    "factText": "SampleText",
+    "sourceId": 1
+  }
+}
+
+vars:pre-request {
+  id: 7
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

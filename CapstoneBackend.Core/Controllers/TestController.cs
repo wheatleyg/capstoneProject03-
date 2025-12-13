@@ -7,36 +7,35 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CapstoneBackend.Core.Controllers;
 
+[Route("test")]
 public class TestController : Controller
 {
     private readonly ILogger<TestController> _logger;
     private readonly IConfiguration _configuration;
     private readonly DbConnectionTest _dbConnectionTest;
     private readonly IUserContext _userContext;
-    private readonly CatDbService _catDbService;
 
     public TestController(
         ILogger<TestController> logger,
         IConfiguration configuration,
         DbConnectionTest dbConnectionTest,
-        IUserContext userContext,
-        CatDbService catDbService)
+        IUserContext userContext)
     {
         _logger = logger;
         _configuration = configuration;
         _dbConnectionTest = dbConnectionTest;
         _userContext = userContext;
-        _catDbService = catDbService;
+        
     }
 
-    [HttpGet("test/online")]
+    [HttpGet("online")]
     public IActionResult TestOnline()
     {
         _logger.LogInformation("test endpoint called");
         return Ok("Backend online.");
     }
 
-    [HttpGet("test/environmentVariables")]
+    [HttpGet("environmentVariables")]
     public IActionResult TestEnvironmentVariables()
     {
         _logger.LogInformation("environment variable endpoint called");
@@ -48,7 +47,7 @@ public class TestController : Controller
             return StatusCode(501, "Environment variables not working.");
     }
 
-    [HttpGet("test/databaseConnection")]
+    [HttpGet("databaseConnection")]
     public async Task<IActionResult> TestConnectionString()
     {
         _logger.LogInformation("connection string endpoint called");
@@ -65,7 +64,7 @@ public class TestController : Controller
         }
     }
 
-    [HttpGet("test/authentication")]
+    [HttpGet("authentication")]
     [Authorize]
     public IActionResult TestAuth()
     {
@@ -83,12 +82,5 @@ public class TestController : Controller
         }
     }
 
-    [HttpGet("test/getcatbyid/{id:int}")]
-    public IActionResult catDbById([FromRoute] int id)
-    {
-        Console.WriteLine("Trying. . . ");
-        var result = _catDbService.GetEntryById(id);
-        return Ok(result);
-        Console.WriteLine("Done.");
-    }
+
 }

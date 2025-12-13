@@ -1,0 +1,24 @@
+meta {
+  name: CreateEntry
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://{{host}}/catdb
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "genreId": 1,
+    "factText": "SampleTest",
+    "sourceId": 1
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

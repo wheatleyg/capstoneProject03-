@@ -1,0 +1,20 @@
+meta {
+  name: DeleteById
+  type: http
+  seq: 5
+}
+
+delete {
+  url: http://{{host}}/catdb/{{id}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  id: 6
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

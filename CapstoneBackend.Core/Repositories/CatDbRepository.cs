@@ -32,10 +32,10 @@ public class CatDbRepository(IConfiguration configuration)
     public CatDb GetEntryById(int id)
     {
         using var connection = new MySqlConnection(_connectionString);
-        return connection.Get<CatDb>(id) ?? throw new Exception("No entry found."); //Same as above.
-        
+        return connection.Get<CatDb>(id); //Most guides say I should check values in the Service layer, but not the Repository layer. Repository layer should only worry about catching and handling connection, invalid syntax, etc. errors.
+
     }
-    /* Get all (for debug) */
+    /* Get all */
     public IEnumerable<CatDb> GetAll()
     {
         using var connection = new MySqlConnection(_connectionString);

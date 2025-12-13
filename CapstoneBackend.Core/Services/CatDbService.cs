@@ -19,31 +19,56 @@ public class CatDbService
             catDb.CreatedAt = DateTime.Now;
         }
 
+        if (catDb.Id != 0)
+        {
+            throw new ArgumentException("Id must be 0 for new entries." , nameof(catDb.Id)); 
+        }
+
         return _catDbRepository.CreateEntry(catDb);
     }
 
     public CatDb UpdateEntry(CatDb catDb)
     {
-        if (catDb.Id == 0) throw new Exception("Can't be 0!");
-        var existingEntry = _catDbRepository.GetEntryById(catDb.Id) ?? throw new Exception("No entry found.");
-        return _catDbRepository.UpdateEntry(catDb);
+        
+        if (catDb.Id <= 0) throw new ArgumentOutOfRangeException(nameof(catDb.Id), "Id must be greater than 0.");
+        var existing = _catDbRepository.GetEntryById(catDb.Id) ??
+                            throw new KeyNotFoundException($"No entry found with 'Id': {catDb.Id}.");
+        var merged = new CatDb
+        {
+            Id = catDb.Id,
+            GenreId = catDb.GenreId != 0 ? catDb.GenreId : existing.GenreId,
+            FactText = catDb.FactText,
+            SourceId = catDb.SourceId != 0 ? catDb.SourceId : existing.SourceId,
+            CreatedAt = existing.CreatedAt
+            
+        };
+        
+        var value = _catDbRepository.UpdateEntry(merged);
+        return _catDbRepository.GetEntryById(catDb.Id); //allows returning of UpdatedAt too
     }
+        
+    
 
     public CatDb GetEntryById(int id)
     {
-        var result = _catDbRepository.GetEntryById(id) ?? throw new Exception("No entry found.");
-        return result;
+        if (id <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(id), "Id must be greater than 0.");
+        }
+        var result = _catDbRepository.GetEntryById(id) ?? throw new KeyNotFoundException($"No entry found with 'id' {id}.");
+        return result; //ts is tuff   
     }
 
     public IEnumerable<CatDb> GetAll()
     {
-        var result = _catDbRepository.GetAll();
+        var result = _catDbRepository.GetAll(); //?? Enumerable.Empty<CatDb>();
         return result;
     }
 
     public bool DeleteEntryById(int id)
     {
-        var entry = _catDbRepository.GetEntryById(id) ?? throw new Exception("No entry found.");
+        if(id <= 0) throw new ArgumentOutOfRangeException(nameof(id), "Id must be greater than 0.");
+        var _ = _catDbRepository.GetEntryById(id) ?? throw new KeyNotFoundException($"No entry found with 'id' {id}.");
         return _catDbRepository.DeleteEntryById(id);
     }
 } 

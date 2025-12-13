@@ -10,5 +10,5 @@ public class SpaceDb
  public int GenreId { get; set; }
  public required string FactText { get; set; }
  public int SourceId { get; set; }
- public DateTime CreatedAt { get; set; }
+ public DateTime? CreatedAt { get; set; }
 }

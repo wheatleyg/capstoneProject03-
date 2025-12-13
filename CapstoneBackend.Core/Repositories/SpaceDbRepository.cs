@@ -3,6 +3,7 @@ namespace CapstoneBackend.Core.Repositories;
 using Models;
 using Dapper.Contrib.Extensions;
 using MySqlConnector;
+using CapstoneBackend.Utilities;
 
 
 public class SpaceDbRepository(IConfiguration configuration)
@@ -34,6 +35,12 @@ public class SpaceDbRepository(IConfiguration configuration)
     {
         using var connection = new MySqlConnection(_connectionString);
         return connection.Get<SpaceDb>(id) ?? throw new Exception("No entry found.");
+    }
+
+    public IEnumerable<SpaceDb> GetAll()
+    {
+        using var connection = new MySqlConnection(_connectionString);
+        return connection.GetAll<SpaceDb>();
     }
     //Delete
     public bool DeleteEntryById(int id)
