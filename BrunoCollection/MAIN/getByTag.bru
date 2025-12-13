@@ -1,0 +1,20 @@
+meta {
+  name: getByTag
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://{{host}}/api/getByTag/{{tag}}
+  body: none
+  auth: inherit
+}
+
+vars:pre-request {
+  tag: galaxy
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

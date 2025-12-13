@@ -3,11 +3,13 @@ namespace CapstoneBackend.Core.Repositories;
 using Models;
 using Dapper.Contrib.Extensions;
 using MySqlConnector;
+using CapstoneBackend.Utilities;
 
 
 public class MediaRepository(IConfiguration configuration)
 {
-    private readonly string _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection String Failed.");
+    private readonly string _connectionString = configuration.GetValue<string>(EnvironmentVariables.MYSQL_CONNECTION_STRING) ??
+                                                throw new InvalidOperationException("Connection string failed.");
    
     //Create
     public Media CreateEntry(Media media)
@@ -29,7 +31,7 @@ public class MediaRepository(IConfiguration configuration)
     public Media GetEntryById(int id)
     {
         using var connection = new MySqlConnection(_connectionString);
-        return connection.Get<Media>(id) ?? throw new Exception("No entry found."); //Same as above.
+        return connection.Get<Media>(id); //Same as above.
         
     }
     /* Get all (for debug) */

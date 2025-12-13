@@ -1,11 +1,11 @@
 meta {
-  name: GetCatByID
+  name: GetAllTags
   type: http
-  seq: 5
+  seq: 4
 }
 
 get {
-  url: http://{{host}}/test/getcatbyid/1
+  url: http://{{host}}/api/getTags
   body: none
   auth: inherit
 }
