@@ -44,7 +44,7 @@ public class MainController : Controller
     }
 
 
-    [HttpGet("GetRandomFact")]
+    [HttpGet("getRandomFact")]
     public IActionResult GetRandomFact()
     {
         try
@@ -82,6 +82,82 @@ public class MainController : Controller
         catch (Exception ex)
         {
             return StatusCode(500, ex.Message);
+        }
+    }
+
+    [HttpGet("getByTag/{tag}")]
+    public IActionResult GetByTag(string tag)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(tag))
+            {
+                return BadRequest(new { Message = "Tag cannot be empty." });
+            }
+
+            tag = tag.Trim().ToLowerInvariant();
+            var allFactTags = _factTagsService.GetAll();
+            var matchingGenres = allFactTags
+                .Where(ft => ft.AvailableTags != null &&
+                             ft.AvailableTags.Any(t => t.Equals(tag, StringComparison.OrdinalIgnoreCase)))
+                .Select(ft => ft.GenreId)
+                .Distinct()
+                .ToList();
+
+            if (!matchingGenres.Any())
+            {
+                return NotFound($"No Genre found for '{tag}'");
+            }
+
+            var allFacts = new List<object>();
+            var genreMap = new Dictionary<int, Main>();
+
+            foreach (var genreId in matchingGenres)
+            {
+                var genre = _mainService.GetEntryById(genreId);
+                if (!genre.Visible)
+                {
+                    continue;
+                }
+
+                genreMap[genreId] = genre;
+
+                if (genre.TableName.Equals("catdb", StringComparison.OrdinalIgnoreCase))
+                {
+                    allFacts.AddRange(_catDbService.GetAll()
+                        .Where(f => f.GenreId == genreId)
+                        .Cast<object>());
+                }
+                else if (genre.TableName.Equals("spacedb", StringComparison.OrdinalIgnoreCase))
+                {
+                    allFacts.AddRange(_spaceDbService.GetAll()
+                        .Where(f => f.GenreId == genreId)
+                        .Cast<object>());
+                }
+            }
+
+            if (!allFacts.Any())
+            {
+                return NotFound(new { Message = $"No Facts found for tag '{tag}'" });
+            }
+
+            var randomFact = allFacts[Random.Shared.Next(allFacts.Count)];
+
+            int factGenreId = randomFact switch
+            {
+                CatDb cat => cat.GenreId,
+                SpaceDb space => space.GenreId,
+                _ => 0
+            };
+
+            var factGenre = genreMap[factGenreId];
+            var response = BuildFactResponse(randomFact, factGenre);
+
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Erorr:  {ex.Message}");
         }
     }
     
