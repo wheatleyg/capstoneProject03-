@@ -1,0 +1,15 @@
+meta {
+  name: GetRandomFact
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://{{host}}/GetRandomFact
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

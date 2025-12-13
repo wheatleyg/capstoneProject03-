@@ -39,7 +39,7 @@ public class MainService
         {
             throw new ArgumentOutOfRangeException(nameof(id), "Id must be greater than 0.");
         }
-        var result = _mainRepository.GetEntryById(id) ?? throw new KeyNotFoundException($"No entry found with 'id' {id}.");
+        var result = _mainRepository.GetEntryById(id);
         return result;
     }
 

@@ -22,12 +22,28 @@ public class Startup
         }
         */
         
-        services.AddControllers();
+        services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+            });
         //I'm so confused.
 
+     
+
+
         services.AddScoped<CapstoneBackend.Core.Repositories.CatDbRepository>();
+        services.AddScoped<CapstoneBackend.Core.Repositories.FactTagsRepository>();
+        services.AddScoped<CapstoneBackend.Core.Repositories.MainRepository>();
+        services.AddScoped<CapstoneBackend.Core.Repositories.MediaRepository>();
+        services.AddScoped<CapstoneBackend.Core.Repositories.SpaceDbRepository>();
+
+
+        services.AddScoped<CapstoneBackend.Core.Services.MainService>();
+        services.AddScoped<CapstoneBackend.Core.Services.FactTagsService>();
+        services.AddScoped<CapstoneBackend.Core.Services.SpaceDbService>();
+        services.AddScoped<CapstoneBackend.Core.Services.MediaService>();
         services.AddScoped<CapstoneBackend.Core.Services.CatDbService>();
-        
         services.AddScoped<DbConnectionTest>();
         
         AuthSetup.AddAuth(services, _configuration);

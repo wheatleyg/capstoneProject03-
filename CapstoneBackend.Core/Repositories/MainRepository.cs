@@ -3,10 +3,12 @@ namespace CapstoneBackend.Core.Repositories;
 using Models;
 using Dapper.Contrib.Extensions;
 using MySqlConnector;
+using CapstoneBackend.Utilities;
 
 public class MainRepository(IConfiguration configuration)
 {
-    private readonly string _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string failed.");
+    private readonly string _connectionString = configuration.GetValue<string>(EnvironmentVariables.MYSQL_CONNECTION_STRING) ??
+                                                throw new InvalidOperationException("Connection string failed.");
     
     //Create
     public Main CreateEntry(Main main)

@@ -8,8 +8,8 @@ using CapstoneBackend.Utilities;
 
 public class SpaceDbRepository(IConfiguration configuration)
 {
-    private readonly string _connectionString = configuration.GetConnectionString("DefaultConnection")
-        ?? throw new InvalidOperationException("Connection string failed.");
+    private readonly string _connectionString = configuration.GetValue<string>(EnvironmentVariables.MYSQL_CONNECTION_STRING) ??
+                                                throw new InvalidOperationException("Connection string failed.");
 
     //Create
     public SpaceDb CreateEntry(SpaceDb spaceDb)
