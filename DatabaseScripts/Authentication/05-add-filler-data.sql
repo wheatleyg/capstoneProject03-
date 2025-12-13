@@ -1,7 +1,7 @@
 USE `fun_facts_db`;
 
 -- Insert two genres (space and cats). Uses ON DUPLICATE KEY so running multiple times is safe.
-INSERT INTO `Main` (GenreName, Description, TableName, Visible)
+INSERT INTO `main` (GenreName, Description, TableName, Visible)
 VALUES
 	('Space', 'Interesting space facts', 'SpaceDb', 1),
 	('Cats', 'Cute and curious cat facts', 'CatDb', 1)
