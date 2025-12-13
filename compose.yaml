@@ -27,6 +27,7 @@
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://0.0.0.0:8080
+      - EnvironmentVariables__Database__ConnectionString=server=mysql;port=3306;database=fun_facts_db;uid=root;pwd=PoofBall#1;
     volumes:
       - ./CapstoneBackend.Core/appsettings.Development.json:/app/appsettings.Development.json:ro
     depends_on:
