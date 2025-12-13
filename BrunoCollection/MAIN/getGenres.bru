@@ -1,0 +1,16 @@
+meta {
+  name: getGenres
+  type: http
+  seq: 6
+}
+
+get {
+  url: http://{{host}}/api/getGenres
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
