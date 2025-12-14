@@ -21,6 +21,7 @@ Stuff I learned to do and NEVER will do again:
 Overall thoughts:
 - Painful project. I would've not spent days in class playing battlefield 6 if I knew how hard implementing controllers would've been.
 - I wish I had more C# expirence. At least the 'next gen' of capstone students will.
-- 
+- If given the choice, I'd rather be a frontend or game dev than to ever be a backend dev.  
 
-<h1> Testing </h1>
+<p style="color:Blue;"> S </p>
+
