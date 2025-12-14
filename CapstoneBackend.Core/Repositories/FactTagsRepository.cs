@@ -6,6 +6,7 @@ using Dapper;
 using MySqlConnector;
 using CapstoneBackend.Utilities;
 using System.Text.Json;
+using System.Data;
 
 public class FactTagsRepository(IConfiguration configuration)
 {
@@ -20,17 +21,20 @@ public class FactTagsRepository(IConfiguration configuration)
     {
         using var connection = new MySqlConnection(_connectionString);
 
-
-
-        //must use raw sql cause dapper.contrib doesn't have anything for jsons
+        // Use stored procedure instead of raw SQL
         var jsonTags = JsonSerializer.Serialize(factTags.AvailableTags ?? new List<string>());
 
+        var parameters = new DynamicParameters();
+        parameters.Add("p_genre_id", factTags.GenreId);
+        parameters.Add("p_available_tags", jsonTags);
 
-        var sql =
-            "INSERT INTO fact_tags (GenreId, AvailableTags) VALUES (@GenreId, @AvailableTags); SELECT LAST_INSERT_ID();";
-        var id = connection.QuerySingle<int>(sql, new { GenreId = factTags.GenreId, AvailableTags = jsonTags });
+        var result = connection.QuerySingle<dynamic>(
+            "sp_FactTags_Create",
+            parameters,
+            commandType: CommandType.StoredProcedure
+        );
 
-        factTags.Id = id;
+        factTags.Id = (int)result.NewId;
         return factTags;
     }
 
@@ -39,13 +43,19 @@ public class FactTagsRepository(IConfiguration configuration)
     {
         using var connection = new MySqlConnection(_connectionString);
 
-
+        // Use stored procedure instead of raw SQL
         var jsonTags = JsonSerializer.Serialize(factTags.AvailableTags ?? new List<string>());
 
+        var parameters = new DynamicParameters();
+        parameters.Add("p_id", factTags.Id);
+        parameters.Add("p_genre_id", factTags.GenreId);
+        parameters.Add("p_available_tags", jsonTags);
 
-        var sql = "UPDATE fact_tags SET GenreId = @GenreId, AvailableTags = @AvailableTags WHERE Id = @Id";
-        var rowsAffected = connection.Execute(sql,
-            new { Id = factTags.Id, GenreId = factTags.GenreId, AvailableTags = jsonTags });
+        var rowsAffected = connection.Execute(
+            "sp_FactTags_Update",
+            parameters,
+            commandType: CommandType.StoredProcedure
+        );
 
         return rowsAffected > 0 ? factTags : throw new Exception("Update failed.");
     }
@@ -56,7 +66,7 @@ public class FactTagsRepository(IConfiguration configuration)
         using var connection = new MySqlConnection(_connectionString);
 
 
-        var sql = "SELECT Id, GenreId, AvailableTags AS AvailableTagsJson FROM fact_tags WHERE Id = @Id";
+        var sql = "SELECT Id, GenreId, AvailableTags AS AvailableTagsJson, CreatedAt, UpdatedAt FROM fact_tags WHERE Id = @Id";
         var result = connection.QueryFirstOrDefault<FactTagsDto>(sql, new { Id = id });
 
         if (result == null) return null;
@@ -65,7 +75,9 @@ public class FactTagsRepository(IConfiguration configuration)
         {
             Id = result.Id,
             GenreId = result.GenreId,
-            AvailableTags = DeserializeTags(result.AvailableTagsJson)
+            AvailableTags = DeserializeTags(result.AvailableTagsJson),
+            CreatedAt = result.CreatedAt,
+            UpdatedAt = result.UpdatedAt
         };
 
     }
@@ -76,14 +88,16 @@ public class FactTagsRepository(IConfiguration configuration)
         using var connection = new MySqlConnection(_connectionString);
 
   
-        var sql = "SELECT Id, GenreId, AvailableTags AS AvailableTagsJson FROM fact_tags";
+        var sql = "SELECT Id, GenreId, AvailableTags AS AvailableTagsJson, CreatedAt, UpdatedAt FROM fact_tags";
         var results = connection.Query<FactTagsDto>(sql);
 
         return results.Select(r => new FactTags
         {
             Id = r.Id,
             GenreId = r.GenreId,
-            AvailableTags = DeserializeTags(r.AvailableTagsJson)
+            AvailableTags = DeserializeTags(r.AvailableTagsJson),
+            CreatedAt = r.CreatedAt,
+            UpdatedAt = r.UpdatedAt
         });
     }
 
@@ -102,6 +116,8 @@ public class FactTagsRepository(IConfiguration configuration)
         public int Id { get; set; }
         public int GenreId { get; set; }
         public string AvailableTagsJson { get; set; } = string.Empty;
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
     }
 
 
@@ -121,6 +137,21 @@ public class FactTagsRepository(IConfiguration configuration)
             // If deserialization fails, return empty list
             return new List<string>();
         }
+    }
+
+    // Get fact tags with genre information using stored procedure
+    public FactTagsWithGenre? GetFactTagsWithGenre(int genreId)
+    {
+        using var connection = new MySqlConnection(_connectionString);
+
+        var parameters = new DynamicParameters();
+        parameters.Add("p_genre_id", genreId);
+
+        return connection.QueryFirstOrDefault<FactTagsWithGenre>(
+            "sp_GetFactTagsWithGenre",
+            parameters,
+            commandType: CommandType.StoredProcedure
+        );
     }
 
 }

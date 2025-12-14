@@ -12,5 +12,8 @@ public class FactTags
     public int GenreId { get; set; }
 
     public List<string> AvailableTags { get; set; }
+    public DateTime? CreatedAt { get; set; }
+    [Write(false)]
+    public DateTime? UpdatedAt { get; set; }
 
 }

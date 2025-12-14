@@ -9,6 +9,9 @@ public class Media
     public int Id { get; set; }
     public required MediaType MediaType { get; set; }
     public required string Link { get; set; }
+    public DateTime? CreatedAt { get; set; }
+    [Write(false)]
+    public DateTime? UpdatedAt { get; set; }
 }
 
 public enum MediaType

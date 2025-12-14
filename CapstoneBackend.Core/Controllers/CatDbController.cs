@@ -12,14 +12,17 @@ public class CatDbController: Controller
 {
  private readonly IConfiguration _configuration;
  private readonly CatDbService _catDbService;
+ private readonly ILogger<CatDbController> _logger;
 
 
  public CatDbController(
      IConfiguration configuration,
-     CatDbService catDbService)
+     CatDbService catDbService,
+     ILogger<CatDbController> logger)
  {
      _configuration = configuration;
      _catDbService = catDbService;
+     _logger = logger;
  }
 
  [HttpPost]
@@ -32,10 +35,12 @@ public class CatDbController: Controller
      }
      catch (ArgumentException ex)
      {
+         _logger.LogError(ex, ex.Message);
          return BadRequest(new { message = ex.Message });
      }
      catch (Exception ex)
      {
+         _logger.LogError(ex, ex.Message);
          return StatusCode(500, new { message = "An unexpected error occurred." });
      }
  }
@@ -55,14 +60,17 @@ public class CatDbController: Controller
      }
      catch (ArgumentOutOfRangeException ex)
      {
+         _logger.LogError(ex, ex.Message);
          return BadRequest(new { message = ex.Message });
      }
      catch (KeyNotFoundException ex)
      {
+         _logger.LogError(ex, ex.Message);
          return NotFound(new { message = ex.Message });
      }
      catch (Exception ex)
      {
+         _logger.LogError(ex, ex.Message);
          return StatusCode(500, new { message = "An unexpected error occurred." });
          
      }
@@ -82,14 +90,17 @@ public class CatDbController: Controller
      }
      catch (ArgumentOutOfRangeException ex)
      {
+         _logger.LogError(ex, ex.Message);
          return BadRequest(new { message = ex.Message });
      }
      catch (KeyNotFoundException ex)
      {
+         _logger.LogError(ex, ex.Message);
          return NotFound(new { message = ex.Message });
      }
      catch (Exception ex) // catch anything unexpected
      {
+         _logger.LogError(ex, ex.Message);
          return StatusCode(500, new { message = "An unexpected error occurred." });
      }
  }
@@ -104,6 +115,7 @@ public class CatDbController: Controller
      }
      catch (Exception ex)
      {
+         _logger.LogError(ex, ex.Message);
          return StatusCode(500, new { message = "An unexpected error occurred." });
      }
  }
@@ -118,14 +130,17 @@ public class CatDbController: Controller
      }
      catch (ArgumentOutOfRangeException ex)
      {
+         _logger.LogError(ex, ex.Message);
          return BadRequest(new { message = ex.Message });
      }
      catch (KeyNotFoundException ex)
      {
+         _logger.LogError(ex, ex.Message);
          return NotFound(new { message = ex.Message });
      }
      catch (Exception ex)
      {
+         _logger.LogError(ex, ex.Message);
          return StatusCode(500, new { message = "An unexpected error occurred." });
      }
  }

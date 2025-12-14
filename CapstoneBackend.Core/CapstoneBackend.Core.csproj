@@ -89,4 +89,8 @@
       <Folder Include="Utilities\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
+    </ItemGroup>
+
 </Project>

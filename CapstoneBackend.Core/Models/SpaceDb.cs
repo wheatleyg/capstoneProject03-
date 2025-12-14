@@ -11,4 +11,6 @@ public class SpaceDb
  public required string FactText { get; set; }
  public int SourceId { get; set; }
  public DateTime? CreatedAt { get; set; }
+ [Write(false)]
+ public DateTime? UpdatedAt { get; set; }
 }

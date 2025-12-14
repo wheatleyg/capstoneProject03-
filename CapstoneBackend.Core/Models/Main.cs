@@ -1,4 +1,4 @@
-﻿namespace CapstoneBackend.Core.Models;
+namespace CapstoneBackend.Core.Models;
 
 using Dapper.Contrib.Extensions;
 
@@ -11,4 +11,7 @@ public class Main
     public required string Description { get; set; }
     public required string TableName { get; set; }
     public bool Visible { get; set; }
+    public DateTime? CreatedAt { get; set; }
+    [Write(false)]
+    public DateTime? UpdatedAt { get; set; }
 }

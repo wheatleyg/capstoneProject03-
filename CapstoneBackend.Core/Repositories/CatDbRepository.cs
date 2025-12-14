@@ -4,7 +4,9 @@ namespace CapstoneBackend.Core.Repositories;
 
 using Models;
 using Dapper.Contrib.Extensions;
+using Dapper;
 using MySqlConnector;
+using System.Data;
 
 public class CatDbRepository(IConfiguration configuration)
 {
@@ -48,6 +50,21 @@ public class CatDbRepository(IConfiguration configuration)
     {
         using var connection = new MySqlConnection(_connectionString);
         return connection.Delete(new CatDb { Id = id, FactText = string.Empty });
+    }
+
+    // Get cat facts with media and genre details using stored procedure
+    public IEnumerable<CatFactsWithDetails> GetCatFactsWithDetails(int genreId)
+    {
+        using var connection = new MySqlConnection(_connectionString);
+
+        var parameters = new DynamicParameters();
+        parameters.Add("p_genre_id", genreId);
+
+        return connection.Query<CatFactsWithDetails>(
+            "sp_GetCatFactsWithDetails",
+            parameters,
+            commandType: CommandType.StoredProcedure
+        );
     }
 
 }

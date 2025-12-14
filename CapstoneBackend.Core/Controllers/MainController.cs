@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This is the main 'main' controller.
  * It handles literally everything the frontend will talk to.
  * It will connect all the services into a single, manageable endpoint.
@@ -22,6 +22,7 @@ public class MainController : Controller
     private readonly CatDbService _catDbService;
     private readonly SpaceDbService _spaceDbService;
     private readonly MediaService _mediaService;
+    private readonly ILogger<MainController> _logger;
 
 
     public MainController(
@@ -30,7 +31,8 @@ public class MainController : Controller
         FactTagsService factTagsService,
         CatDbService catDbService,
         SpaceDbService spaceDbService,
-        MediaService mediaService)
+        MediaService mediaService,
+        ILogger<MainController> logger)
     {
         _configuration = configuration;
         _mainService = mainService;
@@ -38,6 +40,7 @@ public class MainController : Controller
         _catDbService = catDbService;
         _spaceDbService = spaceDbService;
         _mediaService = mediaService;
+        _logger = logger;
     }
 
 
@@ -50,26 +53,30 @@ public class MainController : Controller
             if (!services.Any()) return NotFound(new { Message = "No Facts found" });
 
             var randomService = services[Random.Shared.Next(services.Count)];
-            var allFacts = GetFactsFromService(randomService);
+            var allFacts = GetFactsWithDetailsFromService(randomService);
 
             if (!allFacts.Any()) return NotFound(new { Message = $"No Facts found in {randomService.TableName}" });
 
             var randomFact = allFacts[Random.Shared.Next(allFacts.Count)];
-            var response = BuildFactResponse(randomFact, randomService);
-            return Ok(response);
+            return Ok(randomFact);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
             return StatusCode(500, ex.Message);
         }
     }
 
     [HttpGet("getByTag/{tag}")]
-    public IActionResult GetByTag(string tag)
+    public IActionResult GetByTag(string tag, [FromQuery] int? count = null)
     {
         try
         {
             if (string.IsNullOrWhiteSpace(tag)) return BadRequest(new { Message = "Tag cannot be empty." });
+
+            // If count is provided, validate it
+            if (count.HasValue && (count.Value <= 0 || count.Value > 100))
+                return BadRequest(new { Message = "Count must be between 1 and 100" });
 
             tag = tag.Trim().ToLowerInvariant();
             var allFactTags = _factTagsService.GetAll();
@@ -82,7 +89,7 @@ public class MainController : Controller
 
             if (!matchingGenres.Any()) return NotFound($"No Genre found for '{tag}'");
 
-            var allFacts = new List<object>();
+            var allFacts = new List<FactResponse>();
             var genreMap = new Dictionary<int, Main>();
 
             foreach (var genreId in matchingGenres)
@@ -91,88 +98,28 @@ public class MainController : Controller
                 if (!genre.Visible) continue;
 
                 genreMap[genreId] = genre;
-                allFacts.AddRange(GetFactsFromServiceByGenreId(genre, genreId));
+                allFacts.AddRange(GetFactsWithDetailsByGenreId(genre, genreId));
             }
 
             if (!allFacts.Any()) return NotFound(new { Message = $"No Facts found for tag '{tag}'" });
 
-            var randomFact = allFacts[Random.Shared.Next(allFacts.Count)];
-
-            var factGenreId = randomFact switch
+            // If count is null or 1, return a single random fact
+            if (!count.HasValue || count.Value == 1)
             {
-                CatDb cat => cat.GenreId,
-                SpaceDb space => space.GenreId,
-                _ => 0
-            };
-
-            var factGenre = genreMap[factGenreId];
-            var response = BuildFactResponse(randomFact, factGenre);
-
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Error: {ex.Message}");
-        }
-    }
-
-
-    [HttpGet("getByTag/{tag}/{count}")]
-    public IActionResult GetByTag(string tag, int count = 5)
-    {
-        try
-        {
-            if (string.IsNullOrWhiteSpace(tag)) return BadRequest(new { Message = "Tag cannot be empty." });
-
-            if (count <= 0 || count > 100) return BadRequest(new { Message = "Count must be between 1 and 100" });
-
-            tag = tag.Trim().ToLowerInvariant();
-            var allFactTags = _factTagsService.GetAll();
-            var matchingGenres = allFactTags
-                .Where(ft => ft.AvailableTags != null &&
-                             ft.AvailableTags.Any(t => t.Equals(tag, StringComparison.OrdinalIgnoreCase)))
-                .Select(ft => ft.GenreId)
-                .Distinct()
-                .ToList();
-
-            if (!matchingGenres.Any()) return NotFound($"No Genre found for '{tag}'");
-
-            var allFacts = new List<object>();
-            var genreMap = new Dictionary<int, Main>();
-
-            foreach (var genreId in matchingGenres)
-            {
-                var genre = _mainService.GetEntryById(genreId);
-                if (!genre.Visible) continue;
-
-                genreMap[genreId] = genre;
-                allFacts.AddRange(GetFactsFromServiceByGenreId(genre, genreId));
+                var randomFact = allFacts[Random.Shared.Next(allFacts.Count)];
+                return Ok(randomFact);
             }
 
-            if (!allFacts.Any()) return NotFound(new { Message = $"No Facts found for tag '{tag}'" });
-
-
+            // If count > 1, return multiple facts
             var shuffledFacts = allFacts.OrderBy(x => Random.Shared.Next()).ToList();
-            var factsToReturn = shuffledFacts.Take(Math.Min(count, shuffledFacts.Count)).ToList();
+            var factsToReturn = shuffledFacts.Take(Math.Min(count.Value, shuffledFacts.Count)).ToList();
 
-            var responses = new List<FactResponse>();
-            foreach (var fact in factsToReturn)
-            {
-                var factGenreId = fact switch
-                {
-                    CatDb cat => cat.GenreId,
-                    SpaceDb space => space.GenreId,
-                    _ => 0
-                };
-
-                if (genreMap.ContainsKey(factGenreId)) responses.Add(BuildFactResponse(fact, genreMap[factGenreId]));
-            }
-
-            return Ok(responses);
+            return Ok(factsToReturn);
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"Error: {ex.Message}");
+            _logger.LogError(ex, ex.Message);
+            return StatusCode(500, new { Message = $"Error: {ex.Message}" });
         }
     }
 
@@ -193,6 +140,7 @@ public class MainController : Controller
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
             return StatusCode(500, $"Error: {ex.Message}");
         }
     }
@@ -210,13 +158,13 @@ public class MainController : Controller
 
             if (genre == null) return NotFound(new { Message = $"Genre '{genreName}' not found or not visible" });
 
-            var factTags = _factTagsService.GetAll()
-                .FirstOrDefault(ft => ft.GenreId == genre.Id);
+            // Use stored procedure to get fact tags with genre information in one query
+            var factTagsWithGenre = _factTagsService.GetFactTagsWithGenre(genre.Id);
 
-            if (factTags == null || factTags.AvailableTags == null || !factTags.AvailableTags.Any())
+            if (factTagsWithGenre == null || !factTagsWithGenre.AvailableTags.Any())
                 return NotFound(new { Message = $"No tags found for genre {genre.GenreName}" });
 
-            return Ok(factTags.AvailableTags);
+            return Ok(factTagsWithGenre.AvailableTags);
         }
         catch (Exception ex)
         {
@@ -245,6 +193,7 @@ public class MainController : Controller
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
             return StatusCode(500, $"Error: {ex.Message}");
         }
     }
@@ -326,14 +275,17 @@ public class MainController : Controller
         }
         catch (KeyNotFoundException ex)
         {
+            _logger.LogError(ex, ex.Message);
             return NotFound(new { ex.Message });
         }
         catch (ArgumentException ex)
         {
+            _logger.LogError(ex, ex.Message);
             return BadRequest(new { ex.Message });
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
             return StatusCode(500, new { Message = $"Error: {ex.Message}" });
         }
     }
@@ -429,14 +381,17 @@ public class MainController : Controller
         }
         catch (KeyNotFoundException ex)
         {
+            _logger.LogError(ex, ex.Message);
             return NotFound(new { ex.Message });
         }
         catch (ArgumentException ex)
         {
+            _logger.LogError(ex, ex.Message);
             return BadRequest(new { ex.Message });
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
             return StatusCode(500, new { Message = $"Error: {ex.Message}" });
         }
     }
@@ -579,14 +534,17 @@ public class MainController : Controller
         }
         catch (KeyNotFoundException ex)
         {
+            _logger.LogError(ex, ex.Message);
             return NotFound(new { ex.Message });
         }
         catch (ArgumentException ex)
         {
+            _logger.LogError(ex, ex.Message);
             return BadRequest(new { ex.Message });
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
             return StatusCode(500, new { Message = $"Error: {ex.Message}" });
         }
     }
@@ -605,22 +563,88 @@ public class MainController : Controller
         return facts;
     }
 
-    private List<object> GetFactsFromServiceByGenreId(Main service, int genreId)
+    private List<FactResponse> GetFactsWithDetailsFromService(Main service)
     {
-        var facts = new List<object>();
+        var facts = new List<FactResponse>();
 
         if (service.TableName.Equals("CatDb", StringComparison.OrdinalIgnoreCase))
-            facts.AddRange(_catDbService.GetAll()
-                .Where(f => f.GenreId == genreId));
+        {
+            var catFacts = _catDbService.GetCatFactsWithDetails(service.Id);
+            facts.AddRange(catFacts.Select(f => new FactResponse
+            {
+                Id = f.Id,
+                GenreId = f.GenreId,
+                GenreName = f.GenreName,
+                FactText = f.FactText,
+                Media = f.Media,
+                SourceTable = f.TableName
+            }));
+        }
         else if (service.TableName.Equals("SpaceDb", StringComparison.OrdinalIgnoreCase))
-            facts.AddRange(_spaceDbService.GetAll()
-                .Where(f => f.GenreId == genreId));
+        {
+            var spaceFacts = _spaceDbService.GetSpaceFactsWithDetails(service.Id);
+            facts.AddRange(spaceFacts.Select(f => new FactResponse
+            {
+                Id = f.Id,
+                GenreId = f.GenreId,
+                GenreName = f.GenreName,
+                FactText = f.FactText,
+                Media = f.Media,
+                SourceTable = f.TableName
+            }));
+        }
 
         return facts;
     }
 
+    private List<FactResponse> GetFactsWithDetailsByGenreId(Main service, int genreId)
+    {
+        var facts = new List<FactResponse>();
+
+        if (service.TableName.Equals("CatDb", StringComparison.OrdinalIgnoreCase))
+        {
+            var catFacts = _catDbService.GetCatFactsWithDetails(genreId);
+            facts.AddRange(catFacts.Select(f => new FactResponse
+            {
+                Id = f.Id,
+                GenreId = f.GenreId,
+                GenreName = f.GenreName,
+                FactText = f.FactText,
+                Media = f.Media,
+                SourceTable = f.TableName
+            }));
+        }
+        else if (service.TableName.Equals("SpaceDb", StringComparison.OrdinalIgnoreCase))
+        {
+            var spaceFacts = _spaceDbService.GetSpaceFactsWithDetails(genreId);
+            facts.AddRange(spaceFacts.Select(f => new FactResponse
+            {
+                Id = f.Id,
+                GenreId = f.GenreId,
+                GenreName = f.GenreName,
+                FactText = f.FactText,
+                Media = f.Media,
+                SourceTable = f.TableName
+            }));
+        }
+
+        return facts;
+    }
+
+    private List<object> GetFactsFromServiceByGenreId(Main service, int genreId)
+    {
+        // Keep this for backward compatibility, but convert to FactResponse objects
+        var factsWithDetails = GetFactsWithDetailsByGenreId(service, genreId);
+        return factsWithDetails.Cast<object>().ToList();
+    }
+
     private FactResponse BuildFactResponse(object fact, Main service)
     {
+        // If it's already a FactResponse (from stored procedure), return it directly
+        if (fact is FactResponse factResponse)
+            return factResponse;
+
+        // Fallback to old logic for backward compatibility
         var factId = 0;
         var genreId = 0;
         var factText = string.Empty;
@@ -631,8 +655,7 @@ public class MainController : Controller
             factId = catFact.Id;
             genreId = catFact.GenreId;
             factText = catFact.FactText;
-            sourceId = catFact
-                .SourceId; //ever get that feeling when u code so long words start looking like u spelt them wrong?
+            sourceId = catFact.SourceId;
         }
         else if (fact is SpaceDb spaceFact)
         {

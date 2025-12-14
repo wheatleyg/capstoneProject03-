@@ -62,4 +62,13 @@ public class SpaceDbService
         var _ = _spaceDbRepository.GetEntryById(id) ?? throw new KeyNotFoundException("No Entry Found");
         return _spaceDbRepository.DeleteEntryById(id);
     }
+
+    public IEnumerable<SpaceFactsWithDetails> GetSpaceFactsWithDetails(int genreId)
+    {
+        if (genreId <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(genreId), "GenreId must be greater than 0.");
+        }
+        return _spaceDbRepository.GetSpaceFactsWithDetails(genreId);
+    }
 }

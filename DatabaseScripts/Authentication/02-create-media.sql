@@ -4,6 +4,8 @@ CREATE TABLE IF NOT EXISTS `media` (
     `Id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id!',
     `MediaType` ENUM('image', 'video', 'audio', 'misc', 'none') NOT NULL COMMENT 'The type of media.',
     `Link` VARCHAR(2083) NOT NULL COMMENT 'Url link to media. Not sure how ill add files?',
+    `CreatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'when it was created.',
+    `UpdatedAt` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'when it was last updated.',
     PRIMARY KEY (`Id`)
 )
 

@@ -29,21 +29,25 @@ public class Startup
             });
         //I'm so confused.
 
+        // Add Swagger/OpenAPI documentation
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
+
      
 
 
         services.AddScoped<CapstoneBackend.Core.Repositories.CatDbRepository>();
         services.AddScoped<CapstoneBackend.Core.Repositories.FactTagsRepository>();
         services.AddScoped<CapstoneBackend.Core.Repositories.MainRepository>();
-        services.AddScoped<CapstoneBackend.Core.Repositories.MediaRepository>();
+        services.AddScoped<CapstoneBackend.Core.Repositories.IMediaRepository, CapstoneBackend.Core.Repositories.MediaRepository>();
         services.AddScoped<CapstoneBackend.Core.Repositories.SpaceDbRepository>();
-
 
         services.AddScoped<CapstoneBackend.Core.Services.MainService>();
         services.AddScoped<CapstoneBackend.Core.Services.FactTagsService>();
         services.AddScoped<CapstoneBackend.Core.Services.SpaceDbService>();
         services.AddScoped<CapstoneBackend.Core.Services.MediaService>();
         services.AddScoped<CapstoneBackend.Core.Services.CatDbService>();
+        
         services.AddScoped<DbConnectionTest>();
         
         AuthSetup.AddAuth(services, _configuration);
@@ -61,6 +65,13 @@ public class Startup
         {
             app.UseDeveloperExceptionPage();
             
+            // Enable Swagger UI in Development
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Capstone Backend API v1");
+                c.RoutePrefix = "swagger"; // Swagger UI will be available at /swagger
+            });
         }
         else //we're not doing anything fancy, so we can assume dev or 'prod' are the only choices here
         {
