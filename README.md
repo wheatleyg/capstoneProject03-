@@ -9,7 +9,7 @@ Project is entirely written in C#, and uses packages like Dapper.Contrib, Xunit,
 up on those prospects.
 
 Most of the actual code is in .Core. I tried to keep everything organized as best as possible. 
-Testing is found in .Test, and .Auth is mostly unused. .Utilities just features helper stuff that the .Core uses.
+Testing is found in .Test, and .Auth is mostly unused. `.Utilities` just features helper stuff that the .Core uses.
 All the Bruno calls are in BrunoCollection, and all MySQL statements/queries/whatever-they're-called are in DatabaseScripts.
 
 I don't feel like writing documentation, as I'm already extremely tired on working on this project, and I've already met most of the requirements- a couple points off is fine. But, Swagger should suffice. 
