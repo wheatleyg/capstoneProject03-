@@ -1,0 +1,27 @@
+meta {
+  name: EasyUpdateFact
+  type: http
+  seq: 8
+}
+
+put {
+  url: http://{{host}}/api/easyUpdateFact
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "factId": 1,
+    "genreName": "Cats",
+    "factText": "Updated fact text here",
+    "mediaLink": "https://example.com/updated-image.jpg",
+    "mediaType": 0
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+

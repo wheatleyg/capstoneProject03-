@@ -1,6 +1,7 @@
 namespace CapstoneBackend.Core.Repositories;
 
 using Models;
+using Dapper;
 using Dapper.Contrib.Extensions;
 using MySqlConnector;
 using CapstoneBackend.Utilities;
@@ -15,17 +16,26 @@ public class MediaRepository(IConfiguration configuration)
     public Media CreateEntry(Media media)
     {
         using var connection = new MySqlConnection(_connectionString);
-
-
-        var id = connection.Insert(media);
-        media.Id = (int)id;
+        
+        var mediaTypeString = media.MediaType.ToString().ToLowerInvariant();
+        
+        var sql = "INSERT INTO media (MediaType, Link) VALUES (@MediaType, @Link); SELECT LAST_INSERT_ID();";
+        var id = connection.QuerySingle<int>(sql, new { MediaType = mediaTypeString, Link = media.Link });
+        
+        media.Id = id;
         return media;
     }
     // Update
     public Media UpdateEntry(Media media)
     {
         using var connection = new MySqlConnection(_connectionString);
-        return connection.Update(media) ? media : throw new Exception("Update failed."); //Using this shortened way as Rider prefers it.
+        
+        var mediaTypeString = media.MediaType.ToString().ToLowerInvariant();
+        
+        var sql = "UPDATE media SET MediaType = @MediaType, Link = @Link WHERE Id = @Id";
+        var rowsAffected = connection.Execute(sql, new { Id = media.Id, MediaType = mediaTypeString, Link = media.Link });
+        
+        return rowsAffected > 0 ? media : throw new Exception("Update failed.");
     }
     //Get
     public Media GetEntryById(int id)

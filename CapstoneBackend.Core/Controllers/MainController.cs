@@ -1,11 +1,10 @@
-﻿
-/*
+﻿/*
  * This is the main 'main' controller.
  * It handles literally everything the frontend will talk to.
  * It will connect all the services into a single, manageable endpoint.
  * The main purpose of the other controllers is to simplify updating-
  * -since it'll already be a lot of link all these services together for Get requests.
- * 
+ *
  */
 
 using CapstoneBackend.Core.Models;
@@ -13,8 +12,6 @@ using CapstoneBackend.Core.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CapstoneBackend.Core.Controllers;
-
-
 
 [Route("api")]
 public class MainController : Controller
@@ -50,18 +47,12 @@ public class MainController : Controller
         try
         {
             var services = _mainService.GetAll().Where(s => s.Visible).ToList();
-            if (!services.Any())
-            {
-                return NotFound(new { Message = "No Facts found" });
-            }
+            if (!services.Any()) return NotFound(new { Message = "No Facts found" });
 
             var randomService = services[Random.Shared.Next(services.Count)];
             var allFacts = GetFactsFromService(randomService);
 
-            if (!allFacts.Any())
-            {
-                return NotFound(new { Message = $"No Facts found in {randomService.TableName}" });
-            }
+            if (!allFacts.Any()) return NotFound(new { Message = $"No Facts found in {randomService.TableName}" });
 
             var randomFact = allFacts[Random.Shared.Next(allFacts.Count)];
             var response = BuildFactResponse(randomFact, randomService);
@@ -78,10 +69,7 @@ public class MainController : Controller
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(tag))
-            {
-                return BadRequest(new { Message = "Tag cannot be empty." });
-            }
+            if (string.IsNullOrWhiteSpace(tag)) return BadRequest(new { Message = "Tag cannot be empty." });
 
             tag = tag.Trim().ToLowerInvariant();
             var allFactTags = _factTagsService.GetAll();
@@ -92,10 +80,7 @@ public class MainController : Controller
                 .Distinct()
                 .ToList();
 
-            if (!matchingGenres.Any())
-            {
-                return NotFound($"No Genre found for '{tag}'");
-            }
+            if (!matchingGenres.Any()) return NotFound($"No Genre found for '{tag}'");
 
             var allFacts = new List<object>();
             var genreMap = new Dictionary<int, Main>();
@@ -109,14 +94,11 @@ public class MainController : Controller
                 allFacts.AddRange(GetFactsFromServiceByGenreId(genre, genreId));
             }
 
-            if (!allFacts.Any())
-            {
-                return NotFound(new { Message = $"No Facts found for tag '{tag}'" });
-            }
+            if (!allFacts.Any()) return NotFound(new { Message = $"No Facts found for tag '{tag}'" });
 
             var randomFact = allFacts[Random.Shared.Next(allFacts.Count)];
 
-            int factGenreId = randomFact switch
+            var factGenreId = randomFact switch
             {
                 CatDb cat => cat.GenreId,
                 SpaceDb space => space.GenreId,
@@ -140,15 +122,9 @@ public class MainController : Controller
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(tag))
-            {
-                return BadRequest(new { Message = "Tag cannot be empty." });
-            }
+            if (string.IsNullOrWhiteSpace(tag)) return BadRequest(new { Message = "Tag cannot be empty." });
 
-            if (count <= 0 || count > 100)
-            {
-                return BadRequest(new { Message = "Count must be between 1 and 100" });
-            }
+            if (count <= 0 || count > 100) return BadRequest(new { Message = "Count must be between 1 and 100" });
 
             tag = tag.Trim().ToLowerInvariant();
             var allFactTags = _factTagsService.GetAll();
@@ -159,10 +135,7 @@ public class MainController : Controller
                 .Distinct()
                 .ToList();
 
-            if (!matchingGenres.Any())
-            {
-                return NotFound($"No Genre found for '{tag}'");
-            }
+            if (!matchingGenres.Any()) return NotFound($"No Genre found for '{tag}'");
 
             var allFacts = new List<object>();
             var genreMap = new Dictionary<int, Main>();
@@ -176,10 +149,7 @@ public class MainController : Controller
                 allFacts.AddRange(GetFactsFromServiceByGenreId(genre, genreId));
             }
 
-            if (!allFacts.Any())
-            {
-                return NotFound(new { Message = $"No Facts found for tag '{tag}'" });
-            }
+            if (!allFacts.Any()) return NotFound(new { Message = $"No Facts found for tag '{tag}'" });
 
 
             var shuffledFacts = allFacts.OrderBy(x => Random.Shared.Next()).ToList();
@@ -188,17 +158,14 @@ public class MainController : Controller
             var responses = new List<FactResponse>();
             foreach (var fact in factsToReturn)
             {
-                int factGenreId = fact switch
+                var factGenreId = fact switch
                 {
                     CatDb cat => cat.GenreId,
                     SpaceDb space => space.GenreId,
                     _ => 0
                 };
 
-                if (genreMap.ContainsKey(factGenreId))
-                {
-                    responses.Add(BuildFactResponse(fact, genreMap[factGenreId]));
-                }
+                if (genreMap.ContainsKey(factGenreId)) responses.Add(BuildFactResponse(fact, genreMap[factGenreId]));
             }
 
             return Ok(responses);
@@ -236,25 +203,18 @@ public class MainController : Controller
         try
         {
             if (string.IsNullOrWhiteSpace(genreName))
-            {
                 return BadRequest(new { Message = "Genre name cannot be empty." });
-            }
 
             var genre = _mainService.GetAll()
                 .FirstOrDefault(g => g.GenreName.Equals(genreName, StringComparison.OrdinalIgnoreCase) && g.Visible);
 
-            if (genre == null)
-            {
-                return NotFound(new { Message = $"Genre '{genreName}' not found or not visible" });
-            }
+            if (genre == null) return NotFound(new { Message = $"Genre '{genreName}' not found or not visible" });
 
             var factTags = _factTagsService.GetAll()
                 .FirstOrDefault(ft => ft.GenreId == genre.Id);
 
             if (factTags == null || factTags.AvailableTags == null || !factTags.AvailableTags.Any())
-            {
                 return NotFound(new { Message = $"No tags found for genre {genre.GenreName}" });
-            }
 
             return Ok(factTags.AvailableTags);
         }
@@ -273,10 +233,10 @@ public class MainController : Controller
                 .Where(g => g.Visible)
                 .Select(g => new
                 {
-                    Id = g.Id,
-                    GenreName = g.GenreName,
-                    Description = g.Description,
-                    TableName = g.TableName
+                    g.Id,
+                    g.GenreName,
+                    g.Description,
+                    g.TableName
                 })
                 .OrderBy(g => g.GenreName)
                 .ToList();
@@ -288,58 +248,391 @@ public class MainController : Controller
             return StatusCode(500, $"Error: {ex.Message}");
         }
     }
-    
-    
+
+    [HttpPost("easyAddFact")]
+    public IActionResult EasyAddFact([FromBody] SimpleFactEntry entry)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(entry.FactText))
+                return BadRequest(new { Message = "Fact text cannot be empty." });
+            if (string.IsNullOrWhiteSpace(entry.MediaLink))
+                return BadRequest(new { Message = "Media link cannot be empty." });
+            if (string.IsNullOrWhiteSpace(entry.GenreName))
+                return BadRequest(new { Message = "Genre name cannot be empty." });
+            if (string.IsNullOrWhiteSpace(entry.MediaType))
+                return BadRequest(new { Message = "Media type cannot be empty." });
+
+            // Parse MediaType string to enum
+            if (!Enum.TryParse<MediaType>(entry.MediaType, true, out var mediaTypeEnum))
+                return BadRequest(new { Message = $"Invalid media type '{entry.MediaType}'. Valid values are: Image, Video, Audio, Misc, None" });
+
+            var genre = _mainService.GetAll()
+                .FirstOrDefault(g =>
+                    g.GenreName.Equals(entry.GenreName, StringComparison.OrdinalIgnoreCase) && g.Visible);
+
+            if (genre == null)
+                return NotFound(new { Message = $"Genre '{entry.GenreName}' not found or not visible" });
+
+
+            var existingMedia = _mediaService.GetAll()
+                .FirstOrDefault(m => m.Link.Equals(entry.MediaLink, StringComparison.OrdinalIgnoreCase));
+
+            int mediaId;
+            if (existingMedia != null)
+            {
+                mediaId = existingMedia.Id;
+            }
+            else
+            {
+                var newMedia = new Media
+                {
+                    Id = 0,
+                    Link = entry.MediaLink,
+                    MediaType = mediaTypeEnum
+                };
+                var createdMedia = _mediaService.CreateEntry(newMedia);
+                mediaId = createdMedia.Id;
+            }
+
+
+            if (genre.TableName.Equals("CatDb", StringComparison.OrdinalIgnoreCase))
+            {
+                var catFact = new CatDb
+                {
+                    Id = 0,
+                    GenreId = genre.Id,
+                    FactText = entry.FactText,
+                    SourceId = mediaId
+                };
+                var created = _catDbService.CreateEntry(catFact);
+                return Ok(new { Message = "Fact added successfully", FactId = created.Id });
+            }
+
+            if (genre.TableName.Equals("SpaceDb", StringComparison.OrdinalIgnoreCase))
+            {
+                var spaceFact = new SpaceDb
+                {
+                    Id = 0,
+                    GenreId = genre.Id,
+                    FactText = entry.FactText,
+                    SourceId = mediaId
+                };
+                var created = _spaceDbService.CreateEntry(spaceFact);
+                return Ok(new { Message = "Fact added successfully", FactId = created.Id });
+            }
+
+            return BadRequest(new { Message = $"Unknown table type: {genre.TableName}" });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { Message = $"Error: {ex.Message}" });
+        }
+    }
+
+    [HttpPut("easyUpdateFact")]
+    public IActionResult EasyUpdateFact([FromBody] SimpleFactUpdate update)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(update.GenreName))
+                return BadRequest(new { Message = "Genre name cannot be empty." });
+
+
+            var genre = _mainService.GetAll()
+                .FirstOrDefault(g =>
+                    g.GenreName.Equals(update.GenreName, StringComparison.OrdinalIgnoreCase) && g.Visible);
+
+            if (genre == null)
+                return NotFound(new { Message = $"Genre '{update.GenreName}' not found or not visible" });
+
+
+            object? existingFact = null;
+            if (genre.TableName.Equals("CatDb", StringComparison.OrdinalIgnoreCase))
+                existingFact = _catDbService.GetEntryById(update.FactId);
+            else if (genre.TableName.Equals("SpaceDb", StringComparison.OrdinalIgnoreCase))
+                existingFact = _spaceDbService.GetEntryById(update.FactId);
+            else
+                return BadRequest(new { Message = $"Unknown table type: {genre.TableName}" });
+
+            if (existingFact == null)
+                return NotFound(new { Message = $"Fact with ID {update.FactId} not found" });
+
+
+            var sourceId = existingFact switch
+            {
+                CatDb cat => cat.SourceId,
+                SpaceDb space => space.SourceId,
+                _ => 0
+            };
+
+            if (!string.IsNullOrWhiteSpace(update.MediaLink) && update.MediaType.HasValue)
+            {
+                var existingMedia = _mediaService.GetAll()
+                    .FirstOrDefault(m => m.Link.Equals(update.MediaLink, StringComparison.OrdinalIgnoreCase));
+
+                if (existingMedia != null)
+                {
+                    sourceId = existingMedia.Id;
+                }
+                else
+                {
+                    var newMedia = new Media
+                    {
+                        Id = 0,
+                        Link = update.MediaLink,
+                        MediaType = update.MediaType.Value
+                    };
+                    var createdMedia = _mediaService.CreateEntry(newMedia);
+                    sourceId = createdMedia.Id;
+                }
+            }
+
+
+            if (genre.TableName.Equals("CatDb", StringComparison.OrdinalIgnoreCase))
+            {
+                var catFact = existingFact as CatDb;
+                var updated = new CatDb
+                {
+                    Id = catFact!.Id,
+                    GenreId = catFact.GenreId,
+                    FactText = !string.IsNullOrWhiteSpace(update.FactText) ? update.FactText : catFact.FactText,
+                    SourceId = sourceId
+                };
+                _catDbService.UpdateEntry(updated);
+                return Ok(new { Message = "Fact updated successfully" });
+            }
+
+            if (genre.TableName.Equals("SpaceDb", StringComparison.OrdinalIgnoreCase))
+            {
+                var spaceFact = existingFact as SpaceDb;
+                var updated = new SpaceDb
+                {
+                    Id = spaceFact!.Id,
+                    GenreId = spaceFact.GenreId,
+                    FactText = !string.IsNullOrWhiteSpace(update.FactText) ? update.FactText : spaceFact.FactText,
+                    SourceId = sourceId
+                };
+                _spaceDbService.UpdateEntry(updated);
+                return Ok(new { Message = "Fact updated successfully" });
+            }
+
+            return BadRequest(new { Message = "Update failed" });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { Message = $"Error: {ex.Message}" });
+        }
+    }
+
+    [HttpDelete("easyDeleteFact")]
+    public IActionResult EasyDeleteFact([FromBody] SimpleFactDelete delete)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(delete.GenreName))
+                return BadRequest(new { Message = "Genre name cannot be empty." });
+
+            var genre = _mainService.GetAll()
+                .FirstOrDefault(g =>
+                    g.GenreName.Equals(delete.GenreName, StringComparison.OrdinalIgnoreCase) && g.Visible);
+
+            if (genre == null)
+                return NotFound(new { Message = $"Genre '{delete.GenreName}' not found or not visible" });
+
+
+            object? factToDelete = null;
+            int sourceId = 0;
+
+            if (genre.TableName.Equals("CatDb", StringComparison.OrdinalIgnoreCase))
+            {
+                factToDelete = _catDbService.GetEntryById(delete.FactId);
+                if (factToDelete is CatDb catFact)
+                    sourceId = catFact.SourceId;
+            }
+            else if (genre.TableName.Equals("SpaceDb", StringComparison.OrdinalIgnoreCase))
+            {
+                factToDelete = _spaceDbService.GetEntryById(delete.FactId);
+                if (factToDelete is SpaceDb spaceFact)
+                    sourceId = spaceFact.SourceId;
+            }
+            else
+            {
+                return BadRequest(new { Message = $"Unknown table type: {genre.TableName}" });
+            }
+
+            if (factToDelete == null)
+                return NotFound(new { Message = $"Fact with ID {delete.FactId} not found" });
+
+
+            var deleted = false;
+            if (genre.TableName.Equals("CatDb", StringComparison.OrdinalIgnoreCase))
+                deleted = _catDbService.DeleteEntryById(delete.FactId);
+            else if (genre.TableName.Equals("SpaceDb", StringComparison.OrdinalIgnoreCase))
+                deleted = _spaceDbService.DeleteEntryById(delete.FactId);
+
+            if (!deleted)
+                return NotFound(new { Message = $"Fact with ID {delete.FactId} not found" });
+
+
+            if (delete.DeleteMedia && sourceId > 0)
+            {
+                var allCatFacts = _catDbService.GetAll();
+                var allSpaceFacts = _spaceDbService.GetAll();
+                
+                var mediaStillInUse = allCatFacts.Any(f => f.SourceId == sourceId) ||
+                                     allSpaceFacts.Any(f => f.SourceId == sourceId);
+
+                if (!mediaStillInUse)
+                {
+                    try
+                    {
+                        _mediaService.DeleteEntryById(sourceId);
+                    }
+                    catch
+                    {
+                        
+                    }
+                }
+            }
+
+            return Ok(new { Message = "Fact deleted successfully" });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { Message = $"Error: {ex.Message}" });
+        }
+    }
+
+    [HttpPost("easyAddTags")]
+    public IActionResult EasyAddTags([FromBody] SimpleTagAdd tagAdd)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(tagAdd.GenreName))
+                return BadRequest(new { Message = "Genre name cannot be empty." });
+            if (tagAdd.TagsToAdd == null || !tagAdd.TagsToAdd.Any())
+                return BadRequest(new { Message = "Tags to add cannot be empty." });
+
+
+            var genre = _mainService.GetAll()
+                .FirstOrDefault(g =>
+                    g.GenreName.Equals(tagAdd.GenreName, StringComparison.OrdinalIgnoreCase) && g.Visible);
+
+            if (genre == null)
+                return NotFound(new { Message = $"Genre '{tagAdd.GenreName}' not found or not visible" });
+
+
+            var factTags = _factTagsService.GetAll()
+                .FirstOrDefault(ft => ft.GenreId == genre.Id);
+
+            if (factTags == null)
+                return NotFound(new { Message = $"No fact tags found for genre '{tagAdd.GenreName}'" });
+
+
+            var existingTags = factTags.AvailableTags ?? new List<string>();
+            var newTags = tagAdd.TagsToAdd
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Select(t => t.Trim().ToLowerInvariant())
+                .Where(t => !existingTags.Any(et => et.Equals(t, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            if (!newTags.Any())
+                return Ok(new { Message = "All tags already exist", Tags = existingTags });
+
+            var updatedTags = existingTags.Concat(newTags).ToList();
+
+
+            var updated = new FactTags
+            {
+                Id = factTags.Id,
+                GenreId = factTags.GenreId,
+                AvailableTags = updatedTags
+            };
+
+            _factTagsService.UpdateEntry(updated);
+            return Ok(new { Message = "Tags added successfully", Tags = updatedTags });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { Message = $"Error: {ex.Message}" });
+        }
+    }
+
+
 //HELPER METHODS
     private List<object> GetFactsFromService(Main service)
     {
         var facts = new List<object>();
-        
+
         if (service.TableName.Equals("CatDb", StringComparison.OrdinalIgnoreCase))
-        {
-            facts.AddRange(_catDbService.GetAll().Cast<object>());
-        }
+            facts.AddRange(_catDbService.GetAll());
         else if (service.TableName.Equals("SpaceDb", StringComparison.OrdinalIgnoreCase))
-        {
-            facts.AddRange(_spaceDbService.GetAll().Cast<object>());
-        }
-        
+            facts.AddRange(_spaceDbService.GetAll());
+
         return facts;
     }
 
     private List<object> GetFactsFromServiceByGenreId(Main service, int genreId)
     {
         var facts = new List<object>();
-        
+
         if (service.TableName.Equals("CatDb", StringComparison.OrdinalIgnoreCase))
-        {
             facts.AddRange(_catDbService.GetAll()
-                .Where(f => f.GenreId == genreId)
-                .Cast<object>());
-        }
+                .Where(f => f.GenreId == genreId));
         else if (service.TableName.Equals("SpaceDb", StringComparison.OrdinalIgnoreCase))
-        {
             facts.AddRange(_spaceDbService.GetAll()
-                .Where(f => f.GenreId == genreId)
-                .Cast<object>());
-        }
-        
+                .Where(f => f.GenreId == genreId));
+
         return facts;
     }
 
     private FactResponse BuildFactResponse(object fact, Main service)
     {
-        int factId = 0;
-        int genreId = 0;
-        string factText = string.Empty;
-        int sourceId = 0;
+        var factId = 0;
+        var genreId = 0;
+        var factText = string.Empty;
+        var sourceId = 0;
 
         if (fact is CatDb catFact)
         {
             factId = catFact.Id;
             genreId = catFact.GenreId;
             factText = catFact.FactText;
-            sourceId = catFact.SourceId; //ever get that feeling when u code so long words start looking like u spelt them wrong?
+            sourceId = catFact
+                .SourceId; //ever get that feeling when u code so long words start looking like u spelt them wrong?
         }
         else if (fact is SpaceDb spaceFact)
         {
@@ -352,10 +645,7 @@ public class MainController : Controller
         Media? media = null;
         try
         {
-            if (sourceId > 0)
-            {
-                media = _mediaService.GetEntryById(sourceId);
-            }
+            if (sourceId > 0) media = _mediaService.GetEntryById(sourceId);
         }
         catch
         {
@@ -372,5 +662,4 @@ public class MainController : Controller
             SourceTable = service.TableName
         };
     }
-    
 }

@@ -1,0 +1,25 @@
+meta {
+  name: EasyDeleteFact
+  type: http
+  seq: 9
+}
+
+delete {
+  url: http://{{host}}/api/easyDeleteFact
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "factId": 1,
+    "genreName": "Cats",
+    "deleteMedia": true
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+

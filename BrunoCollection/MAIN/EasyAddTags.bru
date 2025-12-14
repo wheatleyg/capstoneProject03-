@@ -1,0 +1,28 @@
+meta {
+  name: EasyAddTags
+  type: http
+  seq: 10
+}
+
+post {
+  url: http://{{host}}/api/easyAddTags
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "genreName": "Cats",
+    "tagsToAdd": [
+      "purr",
+      "meow",
+      "whiskers"
+    ]
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+

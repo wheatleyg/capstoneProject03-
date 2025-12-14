@@ -1,0 +1,26 @@
+meta {
+  name: EasyAddFact
+  type: http
+  seq: 7
+}
+
+post {
+  url: http://{{host}}/api/easyAddFact
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "factText": "Cats have 32 muscles in each ear.",
+    "mediaLink": "https://example.com/cat-ear-image.jpg",
+    "mediaType": "Image",
+    "genreName": "Cats"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
+
