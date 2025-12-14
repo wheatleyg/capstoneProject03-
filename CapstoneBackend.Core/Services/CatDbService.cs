@@ -71,4 +71,13 @@ public class CatDbService
         var _ = _catDbRepository.GetEntryById(id) ?? throw new KeyNotFoundException($"No entry found with 'id' {id}.");
         return _catDbRepository.DeleteEntryById(id);
     }
-} 
+
+    public IEnumerable<CatFactsWithDetails> GetCatFactsWithDetails(int genreId)
+    {
+        if (genreId <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(genreId), "GenreId must be greater than 0.");
+        }
+        return _catDbRepository.GetCatFactsWithDetails(genreId);
+    }
+}

@@ -5,13 +5,14 @@ meta {
 }
 
 get {
-  url: http://{{host}}/api/getByTag/{{tag}}
+  url: http://{{host}}/api/getByTag/{{tag}}?count={{count}}
   body: none
   auth: inherit
 }
 
 vars:pre-request {
   tag: galaxy
+  count: 1
 }
 
 settings {

@@ -54,5 +54,14 @@ public class FactTagsService
         var _ = _factTagsRepository.GetEntryById(id) ?? throw new KeyNotFoundException("No Entry Found");
         return _factTagsRepository.DeleteEntryById(id);
     }
-    
+
+    public FactTagsWithGenre? GetFactTagsWithGenre(int genreId)
+    {
+        if (genreId <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(genreId), "GenreId must be greater than 0.");
+        }
+        return _factTagsRepository.GetFactTagsWithGenre(genreId);
+    }
+
 }

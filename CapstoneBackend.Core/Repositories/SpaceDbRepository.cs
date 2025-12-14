@@ -2,8 +2,10 @@ namespace CapstoneBackend.Core.Repositories;
 
 using Models;
 using Dapper.Contrib.Extensions;
+using Dapper;
 using MySqlConnector;
 using CapstoneBackend.Utilities;
+using System.Data;
 
 
 public class SpaceDbRepository(IConfiguration configuration)
@@ -48,7 +50,22 @@ public class SpaceDbRepository(IConfiguration configuration)
         using var connection = new MySqlConnection(_connectionString);
         return connection.Delete(new SpaceDb { Id = id, FactText = string.Empty }); //I want to find out how to add error detection to this.
     }
-    
+
+    // Get space facts with media and genre details using stored procedure
+    public IEnumerable<SpaceFactsWithDetails> GetSpaceFactsWithDetails(int genreId)
+    {
+        using var connection = new MySqlConnection(_connectionString);
+
+        var parameters = new DynamicParameters();
+        parameters.Add("p_genre_id", genreId);
+
+        return connection.Query<SpaceFactsWithDetails>(
+            "sp_GetSpaceFactsWithDetails",
+            parameters,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
 }
 
 

@@ -5,9 +5,9 @@ namespace CapstoneBackend.Core.Services;
 
 public class MediaService
 {
-    private readonly MediaRepository _mediaRepository;
+    private readonly IMediaRepository _mediaRepository;
 
-    public MediaService(MediaRepository mediaRepository)
+    public MediaService(IMediaRepository mediaRepository)
     {
         _mediaRepository = mediaRepository;
     }
