@@ -23,6 +23,7 @@ Overall thoughts:
 - I wish I had more C# expirence. At least the 'next gen' of capstone students will.
 - If given the choice, I'd rather be a frontend or game dev than to ever be a backend dev.  
 
-<p style="color:blue;"> S </p>
+
+
 
 
